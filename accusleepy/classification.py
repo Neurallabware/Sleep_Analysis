@@ -50,12 +50,15 @@ class AccuSleepImageDataset(Dataset):
 
 
 def get_device():
-    """Get accelerator, if one is available"""
-    return (
-        torch.accelerator.current_accelerator().type
-        if torch.accelerator.is_available()
-        else "cpu"
-    )
+    """Return the best available torch device string.
+
+    Uses CUDA if available, otherwise Apple MPS (if available), else CPU.
+    """
+    if torch.cuda.is_available():
+        return "cuda"
+    if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        return "mps"
+    return "cpu"
 
 
 def create_dataloader(
